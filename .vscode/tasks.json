@@ -5,12 +5,19 @@
 			"type": "npm",
 			"script": "test",
 			"group": {
-				"kind": "build",
+				"kind": "test",
 				"isDefault": true
 			},
 			"problemMatcher": [],
 			"label": "npm: test",
 			"detail": "jest"
+		},
+		{
+			"type": "npm",
+			"script": "test:unit",
+			"problemMatcher": [],
+			"label": "npm: test:unit",
+			"detail": "jest -t 'Unit tests'"
 		}
 	]
 }
