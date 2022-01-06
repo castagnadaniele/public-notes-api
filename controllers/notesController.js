@@ -1,60 +1,47 @@
+const {
+    InvalidNoteTitleError,
+    InvalidNoteContentError,
+    IdMismatchError,
+} = require('../common/errors')
+
 class NotesController {
     constructor(queryService) {
-        this.queryService = queryService;
+        this.queryService = queryService
     }
 
-    getAll() {
-        return this.queryService.getAll();
+    async getAll() {
+        return await this.queryService.getAll()
     }
 
-    getById(id) {
-        return this.queryService.getById(id);
+    async getById(id) {
+        return await this.queryService.getById(id)
     }
 
-    post(note) {
-        this.#validateNote(note);
-        return this.queryService.post(note);
+    async post(note) {
+        this.#validateNote(note)
+        return await this.queryService.insert(note)
     }
 
-    put(id, note) {
+    async put(id, note) {
         if (id !== note.id) {
-            throw new IdMismatchError();
+            throw new IdMismatchError()
         }
-        this.#validateNote(note);
-        return this.queryService.put(note);
+        this.#validateNote(note)
+        const { created } = await this.queryService.findOrCreate(note)
+        if (!created) {
+            await this.queryService.update(note)
+        }
+        return created
     }
 
     #validateNote(note) {
         if (!note.title) {
-            throw new InvalidNoteTitleError();
+            throw new InvalidNoteTitleError()
         }
         if (!note.content) {
-            throw new InvalidNoteContentError();
+            throw new InvalidNoteContentError()
         }
     }
 }
 
-class InvalidNoteTitleError extends Error {
-    constructor() {
-        super('Note title is required.');
-    }
-}
-
-class InvalidNoteContentError extends Error {
-    constructor() {
-        super('Note content is required.');
-    }
-}
-
-class IdMismatchError extends Error {
-    constructor() {
-        super('Id mismatch');
-    }
-}
-
-module.exports = {
-    NotesController,
-    InvalidNoteTitleError,
-    InvalidNoteContentError,
-    IdMismatchError
-}
+module.exports = NotesController
