@@ -1,10 +1,10 @@
 const sinon = require('sinon')
-const NotesController = require('./notesController')
+const NotesController = require('../src/controllers/notesController')
 const {
     InvalidNoteTitleError,
     InvalidNoteContentError,
     IdMismatchError,
-} = require('../common/errors')
+} = require('../src/common/errors')
 
 describe('notesController', () => {
     it('should call queryService.getAll one time', async () => {

@@ -1,37 +1,22 @@
 const request = require('supertest')
-const app = require('../app')
-const { Sequelize } = require('sequelize')
-const { initNotes, Note } = require('../models/notesModel')
+const app = require('../src/app')
 const {
     IdMismatchError,
     InvalidNoteTitleError,
     InvalidNoteContentError,
-} = require('../common/errors')
+} = require('../src/common/errors')
+const { init, setupTest } = require('../src/common/database')
 
 const contentTypeHeader = 'content-type'
 const locationHeader = 'location'
 
-const sequelize = new Sequelize('sqlite::memory:', { logging: false })
-
 describe('routes/notes', () => {
     beforeAll(async () => {
-        initNotes(sequelize)
-        await sequelize.sync()
+        await init()
     })
 
     beforeEach(async () => {
-        await Note.drop()
-        await sequelize.sync()
-
-        await Note.create({
-            title: 'Titolo 1',
-            content: 'Contenuto 1',
-        })
-
-        await Note.create({
-            title: 'Titolo 2',
-            content: 'Contenuto 2',
-        })
+        await setupTest()
     })
 
     it('should call GET /notes and respond with 200 json', async () => {

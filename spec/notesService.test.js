@@ -1,9 +1,7 @@
-const { Sequelize } = require('sequelize')
-const { initNotes, Note } = require('../models/notesModel')
-const NotesService = require('./notesService')
-const { NoRecordUpdatedError } = require('../common/errors')
+const NotesService = require('../src/services/notesService')
+const { NoRecordUpdatedError } = require('../src/common/errors')
+const { init, setupTest } = require('../src/common/database')
 
-const sequelize = new Sequelize('sqlite::memory:', { logging: false })
 const title1 = 'Titolo 1'
 const content1 = 'Contenuto 1'
 const title2 = 'Titolo 2'
@@ -13,23 +11,11 @@ const content3 = 'Contenuto 3'
 
 describe('notesService', () => {
     beforeAll(async () => {
-        initNotes(sequelize)
-        await sequelize.sync()
+        await init()
     })
 
     beforeEach(async () => {
-        await Note.drop()
-        await sequelize.sync()
-
-        await Note.create({
-            title: 'Titolo 1',
-            content: 'Contenuto 1',
-        })
-
-        await Note.create({
-            title: 'Titolo 2',
-            content: 'Contenuto 2',
-        })
+        await setupTest()
     })
 
     it('should get all notes', async () => {
