@@ -15,7 +15,7 @@ async function init() {
 }
 
 async function setupTest() {
-    await Note.drop()
+    await dropNotesTable()
     await sequelize.sync()
 
     await Note.create({
@@ -27,6 +27,10 @@ async function setupTest() {
         title: 'Titolo 2',
         content: 'Contenuto 2',
     })
+}
+
+async function dropNotesTable() {
+    await Note.drop()
 }
 
 async function initMySQL() {
@@ -48,4 +52,5 @@ function initSQLite() {
 module.exports = {
     init,
     setupTest,
+    dropNotesTable,
 }

@@ -5,7 +5,7 @@ const {
     InvalidNoteTitleError,
     InvalidNoteContentError,
 } = require('../src/common/errors')
-const { init, setupTest } = require('../src/common/database')
+const { init, setupTest, dropNotesTable } = require('../src/common/database')
 
 const contentTypeHeader = 'content-type'
 const locationHeader = 'location'
@@ -26,6 +26,13 @@ describe('routes/notes', () => {
         expect(response.body.length).toBe(2)
     })
 
+    it('should call GET /notes and respond with 500 json on internal error', async () => {
+        await dropNotesTable()
+        const response = await request(app).get('/notes')
+        expect(response.headers[contentTypeHeader]).toMatch(/json/)
+        expect(response.statusCode).toBe(500)
+    })
+
     it('should call GET /notes/1 and respond with 200 json', async () => {
         const response = await request(app).get('/notes/1')
         expect(response.headers[contentTypeHeader]).toMatch(/json/)
@@ -33,6 +40,13 @@ describe('routes/notes', () => {
         expect(response.body.id).not.toBeUndefined()
         expect(response.body.title).not.toBeUndefined()
         expect(response.body.content).not.toBeUndefined()
+    })
+
+    it('should call GET /notes/1 and responde with 500 json on internal error', async () => {
+        await dropNotesTable()
+        const response = await request(app).get('/notes/1')
+        expect(response.headers[contentTypeHeader]).toMatch(/json/)
+        expect(response.statusCode).toBe(500)
     })
 
     it('should call GET /notes/3 and respond with 404 json', async () => {
@@ -70,6 +84,15 @@ describe('routes/notes', () => {
             .send({ title: 'Titolo', content: '' })
         expect(response.statusCode).toBe(400)
         expect(response.body).toBe(new InvalidNoteContentError().toString())
+    })
+
+    it('should call POST /notes and respond with 500 json on internal error', async () => {
+        await dropNotesTable()
+        const response = await request(app)
+            .post('/notes')
+            .send({ title: 'Titolo 3', content: 'Contenuto 3' })
+        expect(response.headers[contentTypeHeader]).toMatch(/json/)
+        expect(response.statusCode).toBe(500)
     })
 
     it('should call PUT /notes/2 and respond with 204', async () => {
@@ -113,5 +136,14 @@ describe('routes/notes', () => {
         expect(response.statusCode).toBe(400)
         expect(response.headers[contentTypeHeader]).toMatch(/json/)
         expect(response.body).toBe(new InvalidNoteContentError().toString())
+    })
+
+    it('should call PUT /notes and respond with 500 json on internal error', async () => {
+        await dropNotesTable()
+        const response = await request(app)
+            .put('/notes/3')
+            .send({ id: 3, title: 'Titolo 3', content: 'Contenuto 3' })
+        expect(response.headers[contentTypeHeader]).toMatch(/json/)
+        expect(response.statusCode).toBe(500)
     })
 })

@@ -10,20 +10,28 @@ const router = express.Router()
 
 const locationHeader = 'Location'
 
-router.get('/', async (req, res) => {
-    const notesController = initController()
-    const notes = await notesController.getAll()
-    res.status(200).json(notes)
+router.get('/', async (req, res, next) => {
+    try {
+        const notesController = initController()
+        const notes = await notesController.getAll()
+        res.status(200).json(notes)
+    } catch (error) {
+        next(error)
+    }
 })
 
-router.get('/:id(\\d+)', async (req, res) => {
-    const notesController = initController()
-    const id = Number.parseInt(req.params.id)
-    const note = await notesController.getById(id)
-    res.status(note ? 200 : 404).json(note)
+router.get('/:id(\\d+)', async (req, res, next) => {
+    try {
+        const notesController = initController()
+        const id = Number.parseInt(req.params.id)
+        const note = await notesController.getById(id)
+        res.status(note ? 200 : 404).json(note)
+    } catch (error) {
+        next(error)
+    }
 })
 
-router.post('/', async (req, res) => {
+router.post('/', async (req, res, next) => {
     const notesController = initController()
     try {
         const note = await notesController.post(req.body)
@@ -31,18 +39,17 @@ router.post('/', async (req, res) => {
             .setHeader(locationHeader, getLocation(req, note.id))
             .json(note)
     } catch (error) {
-        let status = 500
         if (
             error instanceof InvalidNoteTitleError ||
             error instanceof InvalidNoteContentError
         ) {
-            status = 400
+            res.status(400).json(error.toString())
         }
-        res.status(status).json(error.toString())
+        next(error)
     }
 })
 
-router.put('/:id(\\d+)', async (req, res) => {
+router.put('/:id(\\d+)', async (req, res, next) => {
     const notesController = initController()
     try {
         const id = Number.parseInt(req.params.id)
@@ -52,15 +59,14 @@ router.put('/:id(\\d+)', async (req, res) => {
         }
         res.status(created ? 201 : 204).json()
     } catch (error) {
-        let status = 500
         if (
             error instanceof IdMismatchError ||
-            error instanceof InvalidNoteTitleError || 
+            error instanceof InvalidNoteTitleError ||
             error instanceof InvalidNoteContentError
         ) {
-            status = 400
+            res.status(400).json(error.toString())
         }
-        res.status(status).json(error.toString())
+        next(error)
     }
 })
 
